@@ -138,7 +138,14 @@ Last ned `prometheus.yml`og start Prometheus med
 docker run --net="host" -p 9090:9090 -v /FULLSTI_HER/prometheus.yml:/etc/prometheus/prometheus.yml \
        prom/prometheus
 ```
-og åpne localhost:9090 og lag regler for grafing av metrikkene eller se på å vise dem i [Grafana](https://prometheus.io/docs/visualization/grafana/)
+og åpne localhost:9090 og lag regler for grafing av metrikkene.
+ 
+Grafana kan [importere fra Prometheus](https://prometheus.io/docs/visualization/grafana/)
+Start Grafana med 
+```bash
+docker run --net="host" --name=grafana -p 3000:3000 grafana/grafana
+```
+og lag grafer!
 
 ## Opentracing
 [MicroProfile OpenTracing](https://quarkus.io/guides/opentracing-guide) instrumenterer koden vår og eksponerer det til 
