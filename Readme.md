@@ -170,3 +170,22 @@ Start Jaeger med
 docker run -e COLLECTOR_ZIPKIN_HTTP_PORT=9411 -p 5775:5775/udp -p 6831:6831/udp -p 6832:6832/udp -p 5778:5778 -p 16686:16686 -p 14268:14268 -p 9411:9411 jaegertracing/all-in-one:latest
 ```
 Jaeger kan nå åpnes i nettleseren på http://localhost:16686/search
+
+## Feiltoleranse
+[MicroProfile Fault toleranse](https://github.com/eclipse/microprofile-fault-tolerance/) gir et sett annotasjoner vi
+kan bruke til å definere «fallback»-metoder dersom noe bruker for lang tid eller feiler.
+Disse er definert:
+- `@TimeOut`: «Define a duration for timeout»
+- `@RetryPolicy`: «Define a criteria on when to retry»
+- `@Fallback`: «Provide an alternative solution for a failed execution»
+- `@Bulkhead`: «Isolate failures in part of the system while the rest part of the system can still function»
+- `@CircuitBreaker`: «Offer a way of fail fast by automatically failing execution to prevent the system overloading and indefinite wait or timeout by the clients»
+
+Legg til utvidelsen 
+```bash
+mvn quarkus:add-extension -Dextensions="io.quarkus:quarkus-smallrye-fault-tolerance"
+```
+
+[Denne](https://www.tomitribe.com/blog/tomee-a-tutorial-on-microprofile-fault-tolerance/) og 
+[denne](https://developers.redhat.com/blog/wp-content/uploads/2017/11/microprofile-fault-tolerance-spec.pdf) siden går gjennom hvordan 
+de forskjellige annotasjonene brukes.
