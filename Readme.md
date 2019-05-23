@@ -30,13 +30,19 @@ er det bare å koble debugger til på port 5005.
 
 Stopp `quarkus:dev` og bygg applikasjonen med `mvn package`. 
 Den bygde applikasjonen kan kjøres med `java -jar target/quarkus-starter-1.0-SNAPSHOT-runner.jar`. 
-Denne versjonen forutsetter at alle avhengigheter ligger i target/lib. For å bygge en überjar legg til 
+Fra [getting-started-guide](https://quarkus.io/guides/getting-started-guide#packaging-and-run-the-application):
+```
+The Class-Path entry of the MANIFEST.MF from the runner jar explicitly lists the jars from the lib directory. 
+So if you want to deploy your application somewhere, you need to copy the runner jar as well as the lib directory
+```
+Men det er også mulig å bygge en überjar ved å legge til
+
 ```xml
 <configuration>
   <uberJar>true</uberJar>
 </configuration>
 ```
-for `quarkus-maven-plugin`.
+i pom.xml for `quarkus-maven-plugin`.
 
 ## Komponenter og injiseringer
 Nå kan du lage [en service](https://quarkus.io/guides/getting-started-guide#using-injection) som tar seg av hilsning når 
