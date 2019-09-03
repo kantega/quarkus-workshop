@@ -13,10 +13,10 @@ Vi starter med [Quarkus oppstartsguide](https://quarkus.io/guides/getting-starte
 
 Generer en applikasjon med 
 ```bash
-mvn io.quarkus:quarkus-maven-plugin:0.15.0:create \
-    -DprojectGroupId=no.kantega.keiken \
+mvn io.quarkus:quarkus-maven-plugin:0.21.1:create \
+    -DprojectGroupId=no.java.trd \
     -DprojectArtifactId=quarkus-starter \
-    -DclassName="no.kantega.keiken.quarkus.GreetingResource" \
+    -DclassName="no.java.trd.quarkus.GreetingResource" \
     -Dpath="/hello"
 ```
 og start den med `mvn compile quarkus:dev` (`./mvnw` kan også brukes) og besøk http://localhost:8080/ og http://localhost:8080/hello
@@ -35,6 +35,9 @@ Fra [getting-started-guide](https://quarkus.io/guides/getting-started-guide#pack
 The Class-Path entry of the MANIFEST.MF from the runner jar explicitly lists the jars from the lib directory. 
 So if you want to deploy your application somewhere, you need to copy the runner jar as well as the lib directory
 ```
+Dette betyr at det er kun vår kode som ligger i jar-filen, og at alle avhengigheter må ligge i en `lib`-mappe i samme 
+mappe som jar-filen. (`target/quarkus-starter-1.0-SNAPSHOT-runner.jar` + `target/lib`)
+
 Men det er også mulig å bygge en überjar ved å legge til
 
 ```xml
@@ -43,6 +46,8 @@ Men det er også mulig å bygge en überjar ved å legge til
 </configuration>
 ```
 i pom.xml for `quarkus-maven-plugin`.
+For å verifisere at dette er tilfelle kan du slette `target/lib` og prøve kjøre `java -jar target/quarkus-starter-1.0-SNAPSHOT-runner.jar`, 
+så legge til `<uberJar>true</uberJar>` og bygge og kjøre på nytt.
 
 ## Komponenter og injiseringer
 Nå kan du lage [en service](https://quarkus.io/guides/getting-started-guide#using-injection) som tar seg av hilsning når 
@@ -53,6 +58,7 @@ For mer om CDI [ta en titt her](https://quarkus.io/guides/cdi-reference).
 
 Noen ganger er det ønskelig å [overstyre oppførsel ved testing](https://quarkus.io/guides/getting-started-testing#mock-support). 
 Opprett en egen implementasjon av `GreetingService` som overstyrer hva `GreetingResource.greeting(name)` returnerer når testene kjører.
+`MockGreetingService.greeting(name)` kan for eksempel legge til prefix «HALLO TEST!»
 
 ## Konfigurasjon
 Quarkus bruker [MicroProfile Config](https://microprofile.io/project/eclipse/microprofile-config) til konfigurasjonshåndtering. 
@@ -64,7 +70,7 @@ under kjøring og se at output oppdateres ved kjøring.
 
 Dersom du kopierer feltene annotert med `@ConfigProperty` til GreetingResourceTest kan du bruke dem til å sjekke at responsen er rett.
 Dersom `src/test/resources/application.properties` finnes vil den bli brukt i stedet for `src/main/resources/application.properties`. 
-Disse blir ikke flettet.
+Disse blir ikke flettet, så det ikke mulig å delvis overstyre konfig.
 
 ## JSON-støtte
 Slik applikasjonen vår er nå støtter den ikke å generere JSON fra POJOs.
@@ -83,13 +89,13 @@ Lag en test som tester utlisting og å legge til domeneobjekter, [som her](https
 Microprofile Rest Client kan generere klienter basert på interfacer og domeneklasser. 
 Legg til utvidelse for `rest-client` med 
 ```bash
-mvn quarkus:add-extension -Dextensions="io.quarkus:quarkus-smallrye-rest-client"
+mvn quarkus:add-extension -Dextensions="io.quarkus:quarkus-rest-client"
 ```
 
 Kopier oppsett fra [denne guiden](https://quarkus.io/guides/rest-client-guide#setting-up-the-model) for å konsumere [restcountries.eu](https://restcountries.eu/)
 Legg til konfigurasjon for klienten i `application.properties`
 ```properties
-no.kantega.keiken.quarkus.CountriesService/mp-rest/url=https://restcountries.eu/rest
+no.java.trd.quarkus.CountriesService/mp-rest/url=https://restcountries.eu/rest
 ```
 
 Sjekk at alt virker ved å åpne http://localhost:8080/country/name/norway eller et annet land.
@@ -99,9 +105,11 @@ Microprofile OpenAPI støtter å generere OpenAPI 3-dokumenter basert på annota
 Legg til utvidelsen og restart applikasjonen.
 ```bash
 mvn quarkus:add-extension -Dextensions="io.quarkus:quarkus-smallrye-openapi"
-```
+``` 
+Og sjekk [guide](https://quarkus.io/guides/openapi-swaggerui-guide).
 Nå er dokumentasjonen for alle endepunktene i applikasjonen tilgjengelig på http://localhost:8080/openapi. 
-Ved lokalt kjøring er Swagger tilgjengelig på http://localhost:8080/swagger-ui. Ved kjøring i andre miljøer må Swagger settes opp eksternt.
+Ved lokalt kjøring er Swagger tilgjengelig på http://localhost:8080/swagger-ui. 
+Om swagger-ui skal være med i produksjon kan du legge til config `quarkus.swagger-ui.always-include=true`
 
 ## Helsesjekker
 Det er kjekt å vite om applikasjonen vi har laget er frisk eller ikke. Det er det så klart en utvidelse for!
@@ -163,13 +171,13 @@ quarkus.jaeger.sampler-param=1
 quarkus.jaeger.endpoint=http://localhost:14268/api/traces
 ```
 
-Gjør noen kall til alle endepunktene.
-
 Start Jaeger med 
 ```bash
 docker run -e COLLECTOR_ZIPKIN_HTTP_PORT=9411 -p 5775:5775/udp -p 6831:6831/udp -p 6832:6832/udp -p 5778:5778 -p 16686:16686 -p 14268:14268 -p 9411:9411 jaegertracing/all-in-one:latest
 ```
 Jaeger kan nå åpnes i nettleseren på http://localhost:16686/search
+
+Gjør noen kall til alle endepunktene.
 
 ## Feiltoleranse
 [MicroProfile Fault toleranse](https://github.com/eclipse/microprofile-fault-tolerance/) gir et sett annotasjoner vi
