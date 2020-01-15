@@ -2,7 +2,7 @@
 
 Quarkus er en stack for å bygge webapplikasjoner basert på java-biblioteker og -standarder.
 En liste over alt som er offisielt støttet av utvidelser finnes på [quarkus.io/extensions](https://quarkus.io/extensions/).
-Vi skal nå opprette en applikasjon, legge til noen av utvidelsene, og utforske både utivkling og generering av produksjonsbygg.
+Vi skal nå opprette en applikasjon, legge til noen av utvidelsene, og utforske både utvikling og generering av produksjonsbygg.
 
 Det antas at du har docker og Maven >= 3.5.3. 
 (`mvnw` blir lagt inn ved generering av prosjekt, så om du har for gammel versjon kan du jukse ved å 
@@ -18,7 +18,7 @@ Om du ønsker bruke Gradle kan du se på følge [disse stegene](https://quarkus.
 
 Generer en applikasjon med 
 ```bash
-mvn io.quarkus:quarkus-maven-plugin:1.0.1.Final:create \
+mvn io.quarkus:quarkus-maven-plugin:1.1.1.Final:create \
     -DprojectGroupId=no.java.trd \
     -DprojectArtifactId=quarkus-starter \
     -DclassName="no.java.trd.quarkus.GreetingResource" \
@@ -85,11 +85,11 @@ Slik applikasjonen vår er nå støtter den ikke å generere JSON fra POJOs.
 
 Legg til utvidelse for `jsonb` med 
 ```bash
-mvn quarkus:add-extension -Dextensions="io.quarkus:quarkus-resteasy-jsonb"
+./mvnw quarkus:add-extension -Dextensions="io.quarkus:quarkus-resteasy-jsonb"
 ```
 Eller Jackson med 
 ```bash
-mvn quarkus:add-extension -Dextensions="io.quarkus:quarkus-resteasy-jackson"
+./mvnw quarkus:add-extension -Dextensions="io.quarkus:quarkus-resteasy-jackson"
 ```
 Om applikasjonen allerede kjører trenger du ikke stoppe eller restarte, det skjer automatisk.
 
@@ -102,22 +102,24 @@ Lag en test som tester utlisting og å legge til domeneobjekter, [som her](https
 Microprofile Rest Client kan generere klienter basert på interfacer og domeneklasser. 
 Legg til utvidelse for `rest-client` med 
 ```bash
-mvn quarkus:add-extension -Dextensions="io.quarkus:quarkus-rest-client"
+./mvnw quarkus:add-extension -Dextensions="io.quarkus:quarkus-rest-client"
 ```
 
 Kopier oppsett fra [denne guiden](https://quarkus.io/guides/rest-client#setting-up-the-model) for å konsumere [restcountries.eu](https://restcountries.eu/)
-Legg til konfigurasjon for klienten i `application.properties`
+Legg til konfigurasjon for klienten i `application.properties` (pass på at pakkenavnet er rett)
 ```properties
 no.java.trd.quarkus.CountriesService/mp-rest/url=https://restcountries.eu/rest
 ```
 
 Sjekk at alt virker ved å åpne http://localhost:8080/country/name/norway eller et annet land.
 
+Om du valgte `quarkus-resteasy-jackson` da JSON-støtte ble lagt til må Jackson konfigureres til å ignorere ubrukte verdier.
+
 ## Websockets
 Demoapplikasjonen vår trenger å implementere chat. 
 Legg til Websocketstøtte med 
 ```bash
-mvn quarkus:add-extension -Dextensions="io.quarkus:quarkus-undertow-websockets"
+./mvnw quarkus:add-extension -Dextensions="io.quarkus:quarkus-undertow-websockets"
 ```
 Kopier `ChatSocket.java`(til src/main/java/no/java/trd/quarkus/) og `index.html`(til src/main/resources/META-INF/resources) 
 fra [Websocket-guiden](https://quarkus.io/guides/websockets#handling-web-sockets)
@@ -125,15 +127,31 @@ fra [Websocket-guiden](https://quarkus.io/guides/websockets#handling-web-sockets
 Eksempel på hvordan teste et Websocket-endepunkt kan du se [her](https://github.com/quarkusio/quarkus-quickstarts/blob/master/websockets-quickstart/src/test/java/org/acme/websocket/ChatTestCase.java)
 
 ## Database
-[Databaseaksess](https://quarkus.io/guides/datasource)
-[Reactive-databaseaksess](https://quarkus.io/guides/reactive-sql-clients)
+Vanlige [`Datasource`'er](https://quarkus.io/guides/datasource) settes opp ved å legge til en extention for connection pool,
+og en for driver, og legge til innstillinger for dette.
+```bash
+./mvnw quarkus:add-extension -Dextensions="agroal"
+./mvnw quarkus:add-extension -Dextensions="jdbc-h2"
+``` 
+
+```properties
+quarkus.datasource.url=jdbc:h2:./database/mydb
+quarkus.datasource.driver=org.h2.Driver
+quarkus.datasource.username=username-default
+quarkus.datasource.min-size=3
+quarkus.datasource.max-size=13
+```
+For MySQL og Postgresql finnes det også mulighet for[reactive-databaseaksess](https://quarkus.io/guides/reactive-sql-clients).
+
+### Hibernate og JPA
+Quarkus har støtte for [Hibernate](https://quarkus.io/guides/hibernate-orm) og [Hibernate med Panache](https://quarkus.io/guides/hibernate-orm-panache)
 
 ## Dokumentasjon med OpenAPI 3 og SwaggerUI
 Microprofile OpenAPI støtter å generere OpenAPI 3-dokumenter basert på annotasjoner og domeneklasser. 
 Legg til utvidelsen og restart applikasjonen.
 ```bash
-mvn quarkus:add-extension -Dextensions="io.quarkus:quarkus-smallrye-openapi"
-``` 
+./mvnw quarkus:add-extension -Dextensions="io.quarkus:quarkus-smallrye-openapi"
+```
 Og sjekk [guide](https://quarkus.io/guides/openapi-swaggerui).
 Nå er dokumentasjonen for alle endepunktene i applikasjonen tilgjengelig på http://localhost:8080/openapi. 
 Ved lokalt kjøring er Swagger tilgjengelig på http://localhost:8080/swagger-ui. 
@@ -142,7 +160,7 @@ Om swagger-ui skal være med i produksjon kan du legge til `quarkus.swagger-ui.a
 ## Helsesjekker
 Det er kjekt å vite om applikasjonen vi har laget er frisk eller ikke. Det er det så klart en utvidelse for!
 ```bash
-mvn quarkus:add-extension -Dextensions="io.quarkus:quarkus-smallrye-health"
+./mvnw quarkus:add-extension -Dextensions="io.quarkus:quarkus-smallrye-health"
 ```
 Når du nå starter applikasjonen kan du sjekke helsesjekkene på http://localhost:8080/health.
 Det finnes ikke noen sjekker ennå, så opprett en [som alltid er frisk](https://quarkus.io/guides/microprofile-health#creating-your-first-health-check)
@@ -158,7 +176,7 @@ The metrics can be read remotely using JSON format or the OpenMetrics format, so
 ```
 Legg til utvidelsen 
 ```bash
-mvn quarkus:add-extension -Dextensions="io.quarkus:quarkus-smallrye-metrics"
+./mvnw quarkus:add-extension -Dextensions="io.quarkus:quarkus-smallrye-metrics"
 ```
 og dryss `@Counted`, `@Timed`, og `@Gauge` på endepunktene i applikasjonen. 
 Gjør noen requester til alle endepunktene. 
@@ -189,7 +207,7 @@ og lag grafer!
 
 Legg til utvidelsen
 ```bash
-mvn quarkus:add-extension -Dextensions="io.quarkus:quarkus-smallrye-opentracing"
+./mvnw quarkus:add-extension -Dextensions="io.quarkus:quarkus-smallrye-opentracing"
 ```
 og legg innstillinger i `application.properties`
 ```properties
@@ -198,6 +216,8 @@ quarkus.jaeger.sampler-type=const
 quarkus.jaeger.sampler-param=1
 quarkus.jaeger.endpoint=http://localhost:14268/api/traces
 ```
+
+Det er også mulig å få databasetrafikken med i tracing ved å legge til [jdbc-tracing](https://quarkus.io/guides/opentracing#jdbc)
 
 Start Jaeger med 
 ```bash
