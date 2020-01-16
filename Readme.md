@@ -91,6 +91,8 @@ Eller Jackson med
 ```bash
 ./mvnw quarkus:add-extension -Dextensions="io.quarkus:quarkus-resteasy-jackson"
 ```
+(Om du velger Jackson kan det være lurt å sette opp en [ObjectMapper](https://quarkus.io/guides/rest-json#jackson) som ignorerer ukjent felter)
+
 Om applikasjonen allerede kjører trenger du ikke stoppe eller restarte, det skjer automatisk.
 
 Lag noen domeneklasser og endepunkt for å liste dem ut. Eller bare stjel dem [fra denne guiden](https://quarkus.io/guides/rest-json#creating-your-first-json-rest-service)
