@@ -52,7 +52,8 @@ Men det er også mulig å bygge en überjar ved å legge til
 ```
 i pom.xml for `quarkus-maven-plugin`.
 For å verifisere at dette er tilfelle kan du slette `target/lib` og prøve kjøre `java -jar target/quarkus-starter-1.0-SNAPSHOT-runner.jar`, 
-så legge til `<uberJar>true</uberJar>` og bygge og kjøre på nytt.
+så legge til `<uberJar>true</uberJar>` og bygge og kjøre på nytt. 
+(Husk å starte på nytt med `quarkus:dev` for å få hot reload )
 
 ## Komponenter og injiseringer
 Nå kan du lage [en service](https://quarkus.io/guides/getting-started#using-injection) som tar seg av hilsning når 
