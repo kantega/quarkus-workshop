@@ -30,6 +30,9 @@ Quarkus sjekker om noe har endret seg ved behandling av hver request. Åpne `Gre
 
 Ved generering ble det også opprettet en test for `/hello`. 
 Endre `GreetingResourceTest` slik at den passerer og kjør den. (I IDE eller med mvn test)
+Det hender at å kjøre applikasjonen med `quarkus:dev` påvirker testkjøring, så stopp applikasjonen om det er problemer.
+
+
 Ved kjøring av `quarkus:dev` startes debug-lytter, så om du trenger steppe gjennom `GreetingResource.hello()`
 er det bare å koble debugger til på port 5005.
 
